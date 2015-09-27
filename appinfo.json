@@ -1,0 +1,40 @@
+{
+    "appKeys": {
+        "color1": 1,
+        "color2": 2,
+        "color3": 3,
+        "showdate": 5,
+        "tricolor": 4
+    },
+    "capabilities": [
+        "configurable"
+    ],
+    "companyName": "Painless",
+    "longName": "Form WatchFace",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/menu_icon.png",
+                "menuIcon": true,
+                "name": "IMAGE_MENU_ICON",
+                "targetPlatforms": [
+                    "aplite",
+                    "basalt"
+                ],
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "Form Face",
+    "targetPlatforms": [
+        "aplite",
+        "basalt"
+    ],
+    "uuid": "4d257c01-523c-4797-b722-201470279113",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": true
+    }
+}
