@@ -1,5 +1,5 @@
 Pebble.addEventListener("showConfiguration", function(_event) {
-  var url = (Pebble.getActiveWatchInfo && (Pebble.getActiveWatchInfo().platform == "basalt")) ? "http://sunnygoyal.com/pebble/formface/?" : "http://sunnygoyal.com/pebble/formface/aplite.html?";
+  var url = (Pebble.getActiveWatchInfo && (Pebble.getActiveWatchInfo().platform == "basalt")) ? "http://sunnygoyal.github.io/FORMWatchFace-pebble/settings/?" : "http://sunnygoyal.github.io/FORMWatchFace-pebble/settings/aplite.html?";
   var keys = ["color1", "color2", "color3", "tricolor", "showdate"];
   for (var i = 0; i < keys.length; i++) {
     if (localStorage[keys[i]]) {
