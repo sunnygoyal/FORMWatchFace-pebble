@@ -9,19 +9,15 @@
     "capabilities": [
         "configurable"
     ],
-    "companyName": "Painless",
+    "companyName": "Painless Apps",
     "longName": "Form WatchFace",
     "projectType": "native",
     "resources": {
         "media": [
             {
-                "file": "images/menu_icon.png",
+                "file": "images/menu_icon_bw.png",
                 "menuIcon": true,
                 "name": "IMAGE_MENU_ICON",
-                "targetPlatforms": [
-                    "aplite",
-                    "basalt"
-                ],
                 "type": "png"
             }
         ]
