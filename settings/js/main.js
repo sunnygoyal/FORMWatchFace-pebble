@@ -16,6 +16,7 @@ function loadOptions() {
   $('#color3')[0].value = getQueryParam("color3", $('#color3').val());
 
   $('#showdate')[0].checked = getQueryParam("showdate", 1) != 30;
+  $('#format12')[0].checked = getQueryParam("format12", 1) != 30;
 }
 
 function getAndStoreConfigData() {
@@ -27,7 +28,8 @@ function getAndStoreConfigData() {
     color2: $('#color2').val(),
     color3: $('#color3').val(),
 
-    showdate: $('#showdate')[0].checked ? 1 : 30
+    showdate: $('#showdate')[0].checked ? 1 : 30,
+    format12: $('#format12')[0].checked ? 1 : 30
   };
 
   return options;
