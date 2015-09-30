@@ -5,6 +5,7 @@
 #define KEY_COLOR_3 3
 #define KEY_TRI_COLOR 4
 #define KEY_SHOW_DATE 5
+#define KEY_FORMAT_12 6
 
 #define PERSISTED_FALSE 30
 #define DATE_SHIFT 18
@@ -109,6 +110,7 @@ typedef void(* PixelImplementation)(GContext* ctx, int x, int y);
 #endif
 
 static bool SHOW_DATE = true;
+static bool FORMAT_12 = true;
 
 // Various paths
 static const GPathInfo TWO_PATH_INFO = {
@@ -412,7 +414,7 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
     update_digit_layer(tick_time->tm_sec % 10, s_layer_m2);
   #else
     int hr = tick_time->tm_hour;
-    if (hr > 12) {
+    if (FORMAT_12 && hr > 12) {
       hr = hr - 12;
     }
     update_digit_layer(hr / 10, s_layer_h1);
@@ -469,6 +471,7 @@ static void main_window_load(Window *window) {
   #endif
 
   INIT_VAL(SHOW_DATE, INT_TO_BOOL, true);
+  INIT_VAL(FORMAT_12, INT_TO_BOOL, true);
 
   Layer *window_layer = window_get_root_layer(window);
 
@@ -570,12 +573,17 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   #endif
 
   TURPLE_CHECK(SHOW_DATE, INT_TO_BOOL);
+  TURPLE_CHECK(FORMAT_12, INT_TO_BOOL);
 
   update_layer_frame(s_layer_h1, 10);
   update_layer_frame(s_layer_h2, 10);
   update_layer_frame(s_layer_m1, 70);
   update_layer_frame(s_layer_m2, 70);
   update_layer_frame(s_layer_dots, 10);
+
+  time_t now = time(NULL);
+  struct tm *t = localtime(&now);
+  handle_minute_tick(t, TICK_UNIT);
 
   layer_set_hidden(text_layer_get_layer(s_date_layer), !SHOW_DATE);
   text_layer_set_text_color(s_date_layer, COLOR_1);

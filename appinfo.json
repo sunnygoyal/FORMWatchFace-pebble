@@ -3,6 +3,7 @@
         "color1": 1,
         "color2": 2,
         "color3": 3,
+        "format12": 6,
         "showdate": 5,
         "tricolor": 4
     },
@@ -29,7 +30,7 @@
         "basalt"
     ],
     "uuid": "4d257c01-523c-4797-b722-201470279113",
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
         "watchface": true
     }
