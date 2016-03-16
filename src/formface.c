@@ -19,29 +19,12 @@
   #define TICK_UNIT MINUTE_UNIT 
 #endif
 
-typedef void(* PixelImplementation)(GContext* ctx, int x, int y);
-
 #ifdef PBL_COLOR
   static GColor COLOR_1, COLOR_2, COLOR_3;
 
   #define SET_FILL_COLOR(x) graphics_context_set_fill_color(ctx, x);
   #define SET_STROKE_COLOR(x) graphics_context_set_stroke_color(ctx, x);
   #define SET_FIXED_COLOR
-
-  static void circle_impl_for_0(GContext* ctx, int x, int y) {
-    SET_STROKE_COLOR(((x + y) >= 52) ? COLOR_3 : COLOR_2);
-    graphics_draw_pixel(ctx, GPoint(x, y));
-  }
-  static void circle_impl_for_6(GContext* ctx, int x, int y) {
-    if (y >= 26) {
-      graphics_draw_pixel(ctx, GPoint(x, y));    
-    }
-  }
-  static void circle_impl_for_9(GContext* ctx, int x, int y) {
-    if (y < 26) {
-      graphics_draw_pixel(ctx, GPoint(x, y));    
-    }
-  }
 
   #define DRAW_RECT_2(x, y, w, h) graphics_fill_rect(ctx, GRect(x, y, w, h), 0, GCornerNone)
   #define DRAW_RECT_3(x, y, w, h) graphics_fill_rect(ctx, GRect(x, y, w, h), 0, GCornerNone)
@@ -60,9 +43,18 @@ typedef void(* PixelImplementation)(GContext* ctx, int x, int y);
     graphics_context_set_fill_color(ctx, GColorWhite); \
     graphics_context_set_stroke_color(ctx, GColorWhite);
 
-  static void circle_impl_for_0(GContext* ctx, int x, int y) {
-    if ((x + y) >= 52 || ((x + y) & 1) == 0) {
-      graphics_draw_pixel(ctx, GPoint(x, y));
+
+  // *********** Custom color funtions for black and white pebble.
+  typedef void(* PixelImplementation)(GContext* ctx, int x, int y);
+
+  static void gray_color_impl(GContext* ctx, int x, int y) {
+    if (((x + y) & 1) == 0) {
+      graphics_draw_pixel(ctx, GPoint(x, y));    
+    }
+  }
+  static void light_gray_color_impl(GContext* ctx, int x, int y) {
+    if ((x & 1) == 0 || (y & 1) != 0) {
+      graphics_draw_pixel(ctx, GPoint(x, y));    
     }
   }
   static void circle_impl_for_6(GContext* ctx, int x, int y) {
@@ -75,22 +67,46 @@ typedef void(* PixelImplementation)(GContext* ctx, int x, int y);
       graphics_draw_pixel(ctx, GPoint(x, y));    
     }
   }
-  static void gray_color_impl(GContext* ctx, int x, int y) {
-    if (((x + y) & 1) == 0) {
-      graphics_draw_pixel(ctx, GPoint(x, y));    
-    }
-  }
-  static void light_gray_color_impl(GContext* ctx, int x, int y) {
-    if ((x & 1) == 0 || (y & 1) != 0) {
-      graphics_draw_pixel(ctx, GPoint(x, y));    
-    }
-  }
 
   static void draw_gray_rect(GContext* ctx, int x1, int y1, int x2, int y2, PixelImplementation impl) {
     int x, y;
     for (x = x1; x < x2; x++) {
       for (y = y1; y < y2; y++) {
         (*impl) (ctx, x, y);
+      }
+    }
+  }
+
+  /**
+   * Draws a circle at the center 26, 26. Not the circle is not antialiased.
+   */
+  #define draw_center_circle(r, ctx, impl) draw_circle(26, 26, r, ctx, impl)
+  
+  static void draw_circle(int cx, int cy, int r, GContext* ctx, PixelImplementation impl) {
+    int x = r;
+    int y = 0;
+    int xChange = 1 - (r << 1);
+    int yChange = 0;
+    int radiusError = 0;
+    int i;
+  
+    while (x >= y) {
+      for (i = cx - x; i <= cx + x; i++) {
+        (*impl) (ctx, i, cy + y);
+        (*impl) (ctx, i, cy - y);
+      }
+      for (i = cx - y; i <= cx + y; i++) {
+        (*impl) (ctx, i, cy + x);
+        (*impl) (ctx, i, cy - x);
+      }
+      y++;
+      radiusError += yChange;
+      yChange += 2;
+  
+      if (((radiusError << 1) + xChange) > 0) {
+        x--;
+        radiusError += xChange;
+        xChange += 2;
       }
     }
   }
@@ -174,41 +190,6 @@ DIGIT_LAYER(layer_h2);
 DIGIT_LAYER(layer_m1);
 DIGIT_LAYER(layer_m2);
 
-/*************************** Custom circle function *******************************/
-
-/**
- * Draws a circle at the center 26, 26. Not the circle is not antialiased.
- */
-#define draw_center_circle(r, ctx, impl) draw_circle(26, 26, r, ctx, impl)
-
-static void draw_circle(int cx, int cy, int r, GContext* ctx, PixelImplementation impl) {
-  int x = r;
-  int y = 0;
-  int xChange = 1 - (r << 1);
-  int yChange = 0;
-  int radiusError = 0;
-  int i;
-
-  while (x >= y) {
-    for (i = cx - x; i <= cx + x; i++) {
-      (*impl) (ctx, i, cy + y);
-      (*impl) (ctx, i, cy - y);
-    }
-    for (i = cx - y; i <= cx + y; i++) {
-      (*impl) (ctx, i, cy + x);
-      (*impl) (ctx, i, cy - x);
-    }
-    y++;
-    radiusError += yChange;
-    yChange += 2;
-
-    if (((radiusError << 1) + xChange) > 0) {
-      x--;
-      radiusError += xChange;
-      xChange += 2;
-    }
-  }
-}
 
 /*********************************** Drawing **************************************/
 static void draw_digit_layer_with_progress(GContext* ctx, int data, int progress) {
@@ -216,7 +197,13 @@ static void draw_digit_layer_with_progress(GContext* ctx, int data, int progress
   SET_FIXED_COLOR;
   switch (data) {
     case 0: {
-      draw_center_circle(25 * progress / 100, ctx, &circle_impl_for_0);
+      shift = 25 * progress / 100;
+      SET_FILL_COLOR(COLOR_3);
+      DRAW_CIRCLE_2(26, 26, shift);
+
+      SET_FILL_COLOR(COLOR_1);
+      graphics_fill_radial(ctx, GRect(26 - shift, 26 - shift, shift + shift + 1, shift + shift + 1), GOvalScaleModeFitCircle, 40,
+                           DEG_TO_TRIGANGLE(progress * 90 / 100 - 45),  DEG_TO_TRIGANGLE(progress * 90 / 100 + 135));
       break;
     }
     case 1: {
@@ -311,12 +298,17 @@ static void draw_digit_layer_with_progress(GContext* ctx, int data, int progress
       break;
     }
     case 6: {
-      SET_STROKE_COLOR(COLOR_3);
+      #ifdef PBL_COLOR
+      SET_FILL_COLOR(COLOR_3);
+      graphics_fill_radial(ctx, GRect(0, 0, 51, 51), GOvalScaleModeFitCircle, 40,
+                           DEG_TO_TRIGANGLE(90),  DEG_TO_TRIGANGLE(progress * 180 / 100 + 90));
+      #else
       draw_center_circle(progress / 4, ctx, &circle_impl_for_6);
-    
+      #endif
+
       SET_FILL_COLOR(COLOR_2);
       shift = 13 * progress / 100;
-      gpath_move_to(s_six_path_ptr, GPoint(13 - shift, 2 * shift - 26));
+      gpath_move_to(s_six_path_ptr, GPoint(12 - shift, 2 * shift - 26));
       gpath_draw_filled(ctx, s_six_path_ptr);
       break;
     }
@@ -355,12 +347,17 @@ static void draw_digit_layer_with_progress(GContext* ctx, int data, int progress
       break;
     }
     case 9: {
-      SET_STROKE_COLOR(COLOR_3);
+      #ifdef PBL_COLOR
+      SET_FILL_COLOR(COLOR_3);
+      graphics_fill_radial(ctx, GRect(0, 0, 51, 51), GOvalScaleModeFitCircle, 40,
+                           DEG_TO_TRIGANGLE(-90),  DEG_TO_TRIGANGLE(progress * 180 / 100 - 90));
+      #else
       draw_center_circle(progress / 4, ctx, &circle_impl_for_9);
-      
+      #endif
+
       SET_FILL_COLOR(COLOR_2);
       shift = 13 * progress / 100;
-      gpath_move_to(s_nine_path_ptr, GPoint(shift - 13, 26 - 2 * shift));
+      gpath_move_to(s_nine_path_ptr, GPoint(shift - 13, 25 - 2 * shift));
       gpath_draw_filled(ctx, s_nine_path_ptr);
       break;
     }

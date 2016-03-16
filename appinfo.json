@@ -11,6 +11,7 @@
         "configurable"
     ],
     "companyName": "Painless Apps",
+    "enableMultiJS": false,
     "longName": "Form WatchFace",
     "projectType": "native",
     "resources": {
@@ -19,7 +20,7 @@
                 "file": "images/menu_icon.png",
                 "menuIcon": true,
                 "name": "IMAGE_MENU_ICON",
-                "type": "png"
+                "type": "bitmap"
             }
         ]
     },
