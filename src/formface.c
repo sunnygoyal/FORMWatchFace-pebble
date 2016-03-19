@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include <ctype.h>
 
 #define KEY_COLOR_1 1
 #define KEY_COLOR_2 2
@@ -167,7 +168,11 @@ typedef struct digit_layer_data_struct {
 
 static Window *s_main_window;
 static Layer *s_layer_dots;
+
 static TextLayer *s_date_layer;
+#ifdef PBL_COLOR
+static TextLayer *s_date_layer2;
+#endif
 
 /*********************************** Animation **************************************/
 static void digit_layer_animation_update(Layer *layer, AnimationProgress dist_normalized) {
@@ -421,9 +426,16 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   #endif
   
 
-  static char s_date_text[] = "Xxx, Xxx 00";
-  strftime(s_date_text, sizeof(s_date_text), "%a, %b %e", tick_time);
+  static char s_date_text[] = "WED 26";
+  strftime(s_date_text, sizeof(s_date_text), "%a %e", tick_time);
+  s_date_text[1] = toupper((int) s_date_text[1]);
+  s_date_text[2] = toupper((int) s_date_text[2]);
+  
   text_layer_set_text(s_date_layer, s_date_text);
+  #ifdef PBL_COLOR
+  text_layer_set_text(s_date_layer2, s_date_text);
+  #endif
+  
 }
 
 static Layer *create_digit_layer(Layer* window_layer, int x, int y,
@@ -456,6 +468,17 @@ static void dots_layer_update_callback(Layer *layer, GContext* ctx) {
 
 #define INIT_VAL(NAME, FUNCTION, DEFAULT) NAME = persist_read_int(KEY_ ## NAME) ? FUNCTION(persist_read_int(KEY_ ## NAME)) : DEFAULT
 #define INT_TO_BOOL(x) x != PERSISTED_FALSE
+
+static TextLayer* createTextLayer(Layer* window_layer, GFont font, GColor color) {
+  TextLayer* layer = text_layer_create(GRect(0, 145, 144, 23));
+  text_layer_set_text_color(layer, color);
+  text_layer_set_background_color(layer, GColorClear);
+  text_layer_set_text_alignment(layer, GTextAlignmentCenter);
+  text_layer_set_font(layer, font);
+  layer_set_hidden(text_layer_get_layer(layer), !SHOW_DATE);
+  layer_add_child(window_layer, text_layer_get_layer(layer));
+  return layer;
+}
 
 static void main_window_load(Window *window) {
   #ifdef PBL_COLOR
@@ -492,13 +515,10 @@ static void main_window_load(Window *window) {
   s_layer_m2 = create_digit_layer(window_layer, 88, 70, &layer_m2_animation_impl, 450);
 
   // Date layer
-  s_date_layer = text_layer_create(GRect(0, 132, 144, 36));
-  text_layer_set_text_color(s_date_layer, COLOR_1);
-  text_layer_set_background_color(s_date_layer, GColorClear);
-  text_layer_set_text_alignment(s_date_layer, GTextAlignmentCenter);
-  text_layer_set_font(s_date_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-  layer_set_hidden(text_layer_get_layer(s_date_layer), !SHOW_DATE);
-  layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
+  s_date_layer = createTextLayer(window_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_MATERIAL_FONT_BOTTOM_16)), COLOR_1);
+  #ifdef PBL_COLOR
+  s_date_layer2 = createTextLayer(window_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_MATERIAL_FONT_TOP_16)), COLOR_3);
+  #endif
 
   tick_timer_service_subscribe(TICK_UNIT, handle_minute_tick);
 
@@ -533,6 +553,9 @@ static void main_window_unload(Window *window) {
 
   layer_destroy(s_layer_dots);
   text_layer_destroy(s_date_layer);
+  #ifdef PBL_COLOR
+  text_layer_destroy(s_date_layer2);
+  #endif
 
   gpath_destroy(s_two_path_ptr);
   gpath_destroy(s_three_path_ptr);
@@ -584,6 +607,10 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 
   layer_set_hidden(text_layer_get_layer(s_date_layer), !SHOW_DATE);
   text_layer_set_text_color(s_date_layer, COLOR_1);
+  #ifdef PBL_COLOR
+  layer_set_hidden(text_layer_get_layer(s_date_layer2), !SHOW_DATE);
+  text_layer_set_text_color(s_date_layer2, COLOR_3);
+  #endif
 }
 
 static void init() {

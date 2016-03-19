@@ -17,6 +17,24 @@
     "resources": {
         "media": [
             {
+                "characterRegex": "[0-9MONTUEWEDTHUFRISATSUN]",
+                "file": "fonts/material_top.ttf",
+                "name": "MATERIAL_FONT_TOP_16",
+                "targetPlatforms": [
+                    "basalt"
+                ],
+                "trackingAdjust": 2,
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9MONTUEWEDTHUFRISATSUN]",
+                "file": "fonts/material_bottom.ttf",
+                "name": "MATERIAL_FONT_BOTTOM_16",
+                "targetPlatforms": null,
+                "trackingAdjust": 2,
+                "type": "font"
+            },
+            {
                 "file": "images/menu_icon.png",
                 "menuIcon": true,
                 "name": "IMAGE_MENU_ICON",
