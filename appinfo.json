@@ -11,7 +11,7 @@
         "configurable"
     ],
     "companyName": "Painless Apps",
-    "enableMultiJS": false,
+    "enableMultiJS": true,
     "longName": "Form WatchFace",
     "projectType": "native",
     "resources": {
@@ -21,7 +21,8 @@
                 "file": "fonts/material_top.ttf",
                 "name": "MATERIAL_FONT_TOP_16",
                 "targetPlatforms": [
-                    "basalt"
+                    "basalt",
+                    "chalk"
                 ],
                 "trackingAdjust": 2,
                 "type": "font"
@@ -49,7 +50,7 @@
         "basalt"
     ],
     "uuid": "4d257c01-523c-4797-b722-201470279113",
-    "versionLabel": "1.1",
+    "versionLabel": "1.2",
     "watchapp": {
         "watchface": true
     }

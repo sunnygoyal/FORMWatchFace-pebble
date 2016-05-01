@@ -427,7 +427,7 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   
 
   static char s_date_text[] = "WED 26";
-  strftime(s_date_text, sizeof(s_date_text), "%a %e", tick_time);
+  strftime(s_date_text, sizeof(s_date_text), "%a %d", tick_time);
   s_date_text[1] = toupper((int) s_date_text[1]);
   s_date_text[2] = toupper((int) s_date_text[2]);
   
