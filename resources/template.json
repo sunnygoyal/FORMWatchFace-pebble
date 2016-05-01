@@ -1,0 +1,31 @@
+{
+    "prefix": "<?xml version=\"1.0\" standalone=\"no\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n<svg xmlns=\"http://www.w3.org/2000/svg\">\n<defs>\n    <font id=\"Material_top\" horiz-adv-x=\"128\">\n        <font-face units-per-em=\"128\" ascent=\"0\" descent=\"128\" font-family=\"Material_bottom\" font-weight=\"normal\"/>\n        <missing-glyph horiz-adv-x=\"128\"/>\n",
+    "spaces" : "        ",
+    "suffix" : "    </font>\n</defs>\n</svg>",
+    "entries" : [
+        {"code": "A"},
+        {"code": "D"},
+        {"code": "E"},
+        {"code": "F"},
+        {"code": "H"},
+        {"code": "I", "width": 64},
+        {"code": "M"},
+        {"code": "N"},
+        {"code": "O"},
+        {"code": "R", "width": 112},
+        {"code": "S"},
+        {"code": "T"},
+        {"code": "U"},
+        {"code": "W", "width": 210},
+        {"code": "0"},
+        {"code": "1", "width": 96},
+        {"code": "2"},
+        {"code": "3"},
+        {"code": "4"},
+        {"code": "5"},
+        {"code": "6"},
+        {"code": "7"},
+        {"code": "8"},
+        {"code": "9"}
+    ]
+}

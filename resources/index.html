@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>SVG Font generator</title>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+        <script>
+            var PREFIX = "font_top_";
+            var MAX = 25;
+            var out = "";
+            function startProcess() {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var s = JSON.parse(e.target.result);
+                    scheduleNext(s, 1);
+                    out = s.prefix;
+                }
+                reader.readAsText(findFile("template.json"));
+                
+            }
+
+            function findFile(name) {
+                var f = $("#files").get(0).files;
+                for (var i=0; i<f.length; i++) {
+                    if (f[i].name == name) {
+                        return f[i];
+                    }
+                }
+                for (var i=0; i<f.length; i++) {
+                    if (f[i].name.split(".")[0] == name) {
+                        return f[i];
+                    }
+                }
+                return null;
+            }
+
+            function scheduleNext(allSettings, index) {
+                // Update progress bar.
+                $("#pi").width(200 * index / MAX);
+                var setting = allSettings[index];
+
+                if (index < MAX) {
+                    var fileToLoad = findFile(PREFIX + index + ".svg");
+                    if (fileToLoad == null) {
+                        // Source not found, ignore
+                        console.warn("File not found " + setting.src);
+                        scheduleNext(allSettings, index + 1);
+                    } else {
+                        // Read image
+                        console.info("Reading " + index, allSettings.entries[index - 1]);
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            var match = e.target.result.match(/d\="([^"]+)"/)[1];
+                            console.log(match);
+                            
+                            var t = allSettings.entries[index - 1];
+                            var row = '<glyph unicode="' + t.code + '" d="' + match + '"';
+                            if (t.width) {
+                                row += ' horiz-adv-x="' + t.width + '"';
+                            }
+                            row += "/>";
+                            out += allSettings.spaces + row + "\n";
+
+                            scheduleNext(allSettings, index + 1);
+                        };
+                        reader.readAsText(fileToLoad);
+                    }
+                } else {
+                    console.info("Completed");
+                    $("#progress").hide();
+                    out += allSettings.suffix;
+                    $("#out").val(out);
+                }
+            }
+        </script>
+        <style>
+            #progress {
+                width: 200px;
+                height: 20px;
+                border: 1px solid #aaa;
+                float: left;
+                margin: 5px;
+            }
+            #pi {
+                width: 0px;
+                height: 20px;
+                background: #aaa;
+                transition: width .2s;
+                -webkit-transition: width .2s;
+            }
+            
+        </style>
+    </head>
+    <body>
+        <h2>SVG Font generator</h2>
+        <input type="file" id="files" multiple mozdirectory="" webkitdirectory="" directory="" />
+        <br/>
+        <br/>
+        <button onclick="startProcess()">Generate</button>
+        <div style="float: left; margin-left: 10px;">
+            <div id="progress" style="display: none"><div id="pi"></div></div>
+            <div id="dwnbtn" style="display:none;"></div>
+        </div>
+
+        <div style="clear: both"></div><br/>
+        <hr />
+        <textarea rows="10" cols="50" id="out"></textarea>
+    
+      
+    </body>
+    
+</html>
